@@ -21,7 +21,7 @@ jobs:
 
     - name: Build APK
       run: |
-        # تحميل Gradle مباشرة
+        # تحميل Gradle 8.0 بالضبط
         wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
         unzip -q gradle-8.0-bin.zip
         export PATH=$PATH:$PWD/gradle-8.0/bin
