@@ -19,15 +19,19 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build APK
+    - name: Create gradle wrapper properties
       run: |
-        # تحميل Gradle 8.0 بالضبط
-        wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
-        unzip -q gradle-8.0-bin.zip
-        export PATH=$PATH:$PWD/gradle-8.0/bin
-        
-        # بناء التطبيق
-        gradle assembleDebug --no-daemon
+        mkdir -p gradle/wrapper
+        echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
+        echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+        echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+        echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
+        echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
+
+    - name: Build with Gradle wrapper
+      run: |
+        chmod +x gradlew
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
