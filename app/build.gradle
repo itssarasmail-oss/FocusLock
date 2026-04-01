@@ -33,6 +33,3 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:20.2.0'
     implementation 'com.google.firebase:firebase-auth:22.1.0'
 }
-
-// تطبيق Firebase plugin (إذا كان موجود)
-apply plugin: 'com.google.gms.google-services'
