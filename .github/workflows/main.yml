@@ -19,15 +19,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Install Gradle
-      run: |
-        wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
-        unzip gradle-8.0-bin.zip
-        export PATH=$PATH:$PWD/gradle-8.0/bin
-
     - name: Build APK
       run: |
+        # تحميل Gradle مباشرة
+        wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
+        unzip -q gradle-8.0-bin.zip
         export PATH=$PATH:$PWD/gradle-8.0/bin
+        
+        # بناء التطبيق
         gradle assembleDebug --no-daemon
 
     - name: Upload APK
