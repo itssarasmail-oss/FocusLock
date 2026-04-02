@@ -1,5 +1,11 @@
 package com.student.focuslock;
-
+import android.app.admin.DeviceAdminReceiver;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Vibrator;
+import android.view.View;
 import android.app.*;
 import android.content.*;
 import android.graphics.Color;
