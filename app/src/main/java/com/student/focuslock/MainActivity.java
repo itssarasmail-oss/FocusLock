@@ -29,13 +29,12 @@ public class MainActivity extends Activity {
     private TextView tvStatus, tvFooter;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private LinearLayout mainLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // ========== تهيئة Firebase ==========
+        // تهيئة Firebase
         try {
             if (FirebaseApp.getApps(this).isEmpty()) {
                 FirebaseApp.initializeApp(this);
@@ -46,31 +45,22 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "Firebase error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
         
-        // ========== التحقق من تسجيل الدخول السابق ==========
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Toast.makeText(this, "✨ مرحباً " + currentUser.getEmail() + " ✨", Toast.LENGTH_SHORT).show();
-            // هنا هنروح للصفحة الرئيسية بعدين
-        }
-        
-        // ========== التصميم الأسود الزجاجي ==========
-        mainLayout = new LinearLayout(this);
+        // التصميم
+        LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(40, 100, 40, 40);
-        mainLayout.setBackgroundColor(Color.parseColor("#050510")); // أسود مع لمسة نيلي عميق
+        mainLayout.setBackgroundColor(Color.parseColor("#050510"));
         
-        // عنوان التطبيق
         TextView title = new TextView(this);
         title.setText("🔮 FOCUS LOCK");
         title.setTextSize(34);
         title.setTypeface(null, Typeface.BOLD);
-        title.setTextColor(Color.parseColor("#FFFFFF"));
+        title.setTextColor(Color.WHITE);
         title.setGravity(1);
         title.setPadding(0, 0, 0, 50);
-        title.setShadowLayer(10, 0, 0, Color.parseColor("#4444FF"));
         mainLayout.addView(title);
         
-        // ========== حقل البريد الإلكتروني ==========
+        // حقل البريد
         etEmail = new EditText(this);
         etEmail.setHint("البريد الإلكتروني");
         etEmail.setTextColor(Color.WHITE);
@@ -83,7 +73,7 @@ public class MainActivity extends Activity {
         etEmail.setPadding(35, 22, 35, 22);
         mainLayout.addView(etEmail);
         
-        // ========== حقل كلمة المرور ==========
+        // حقل كلمة المرور
         etPassword = new EditText(this);
         etPassword.setHint("كلمة المرور");
         etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -103,14 +93,14 @@ public class MainActivity extends Activity {
         etPassword.setLayoutParams(params);
         mainLayout.addView(etPassword);
         
-        // ========== زر تسجيل الدخول ==========
+        // زر تسجيل الدخول
         btnLogin = new Button(this);
         btnLogin.setText("تسجيل الدخول");
         btnLogin.setTextColor(Color.WHITE);
         btnLogin.setTextSize(16);
         btnLogin.setTypeface(null, Typeface.BOLD);
         GradientDrawable loginBg = new GradientDrawable();
-        loginBg.setColor(Color.parseColor("#3D5AFE")); // أزرق نيلي
+        loginBg.setColor(Color.parseColor("#3D5AFE"));
         loginBg.setCornerRadius(35);
         btnLogin.setBackground(loginBg);
         btnLogin.setPadding(30, 18, 30, 18);
@@ -122,7 +112,7 @@ public class MainActivity extends Activity {
         btnLogin.setLayoutParams(params);
         mainLayout.addView(btnLogin);
         
-        // ========== زر إنشاء حساب ==========
+        // زر إنشاء حساب
         btnRegister = new Button(this);
         btnRegister.setText("إنشاء حساب جديد");
         btnRegister.setTextColor(Color.parseColor("#CCFFFFFF"));
@@ -141,7 +131,7 @@ public class MainActivity extends Activity {
         btnRegister.setLayoutParams(params);
         mainLayout.addView(btnRegister);
         
-        // ========== حالة التطبيق ==========
+        // حالة التطبيق
         tvStatus = new TextView(this);
         tvStatus.setText("");
         tvStatus.setTextColor(Color.parseColor("#3D5AFE"));
@@ -150,7 +140,7 @@ public class MainActivity extends Activity {
         tvStatus.setTextSize(14);
         mainLayout.addView(tvStatus);
         
-        // ========== Footer (Developed by 1383) ==========
+        // Footer
         tvFooter = new TextView(this);
         tvFooter.setText("Developed by 1383");
         tvFooter.setTextColor(Color.parseColor("#80FFFFFF"));
@@ -158,26 +148,19 @@ public class MainActivity extends Activity {
         tvFooter.setGravity(1);
         tvFooter.setPadding(0, 40, 0, 0);
         tvFooter.setOnClickListener(v -> {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://1383portfolio.vercel.app"));
-            startActivity(browserIntent);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://1383portfolio.vercel.app")));
         });
         mainLayout.addView(tvFooter);
         
         setContentView(mainLayout);
         
-        // ========== إعداد الأزرار مع Firebase ==========
-        
+        // الأزرار
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             
-            if (TextUtils.isEmpty(email)) {
-                tvStatus.setText("✧ البريد الإلكتروني مطلوب ✧");
-                tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
-                return;
-            }
-            if (TextUtils.isEmpty(password)) {
-                tvStatus.setText("✧ كلمة المرور مطلوبة ✧");
+            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                tvStatus.setText("✧ البريد وكلمة المرور مطلوبان ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
                 return;
             }
@@ -188,14 +171,12 @@ public class MainActivity extends Activity {
             mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
                         tvStatus.setText("✅ تم تسجيل الدخول بنجاح!");
                         tvStatus.setTextColor(Color.parseColor("#4CAF50"));
-                        Toast.makeText(MainActivity.this, "✨ مرحباً " + user.getEmail() + " ✨", Toast.LENGTH_LONG).show();
-                        // هنا هنروح للصفحة الرئيسية
+                        Toast.makeText(MainActivity.this, "✨ مرحباً بك ✨", Toast.LENGTH_LONG).show();
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ غير معروف";
-                        tvStatus.setText("❌ فشل تسجيل الدخول: " + error);
+                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ";
+                        tvStatus.setText("❌ " + error);
                         tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
                     }
                 });
@@ -205,18 +186,13 @@ public class MainActivity extends Activity {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             
-            if (TextUtils.isEmpty(email)) {
-                tvStatus.setText("✧ البريد الإلكتروني مطلوب ✧");
-                tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
-                return;
-            }
-            if (TextUtils.isEmpty(password)) {
-                tvStatus.setText("✧ كلمة المرور مطلوبة ✧");
+            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                tvStatus.setText("✧ البريد وكلمة المرور مطلوبان ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
                 return;
             }
             if (password.length() < 6) {
-                tvStatus.setText("✧ كلمة المرور يجب أن تكون 6 خانات على الأقل ✧");
+                tvStatus.setText("✧ كلمة المرور 6 خانات على الأقل ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
                 return;
             }
@@ -228,25 +204,21 @@ public class MainActivity extends Activity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        // حفظ بيانات المستخدم في Realtime Database
                         if (user != null) {
-                            String userId = user.getUid();
-                            User newUser = new User(email, System.currentTimeMillis());
-                            mDatabase.child(userId).setValue(newUser);
+                            mDatabase.child(user.getUid()).setValue(new User(email, System.currentTimeMillis()));
                         }
                         tvStatus.setText("✅ تم إنشاء الحساب بنجاح!");
                         tvStatus.setTextColor(Color.parseColor("#4CAF50"));
-                        Toast.makeText(MainActivity.this, "🎉 مرحباً بك! تم إنشاء حسابك.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "🎉 تم إنشاء حسابك!", Toast.LENGTH_LONG).show();
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ غير معروف";
-                        tvStatus.setText("❌ فشل إنشاء الحساب: " + error);
+                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ";
+                        tvStatus.setText("❌ " + error);
                         tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
                     }
                 });
         });
     }
     
-    // كلاس المستخدم
     public static class User {
         public String email;
         public long createdAt;
@@ -256,4 +228,4 @@ public class MainActivity extends Activity {
             this.createdAt = createdAt;
         }
     }
-}
+                                }
