@@ -28,4 +28,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:20.2.0'
 }
 
+// ✅ هذا السطر يجب أن يكون في النهاية
 apply plugin: 'com.google.gms.google-services'
