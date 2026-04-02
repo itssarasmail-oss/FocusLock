@@ -12,74 +12,89 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.graphics.Typeface;
+import android.text.TextUtils;
+import android.content.Intent;
+import android.net.Uri;
+
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends Activity {
 
     private EditText etEmail, etPassword;
     private Button btnLogin, btnRegister;
-    private TextView tvStatus;
+    private TextView tvStatus, tvFooter;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+    private LinearLayout mainLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // ========== التصميم الأسود الزجاجي ==========
+        // ========== تهيئة Firebase ==========
+        try {
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                FirebaseApp.initializeApp(this);
+            }
+            mAuth = FirebaseAuth.getInstance();
+            mDatabase = FirebaseDatabase.getInstance().getReference("Users");
+        } catch (Exception e) {
+            Toast.makeText(this, "Firebase error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
         
-        // LinearLayout الرئيسي
-        LinearLayout mainLayout = new LinearLayout(this);
+        // ========== التحقق من تسجيل الدخول السابق ==========
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            Toast.makeText(this, "✨ مرحباً " + currentUser.getEmail() + " ✨", Toast.LENGTH_SHORT).show();
+            // هنا هنروح للصفحة الرئيسية بعدين
+        }
+        
+        // ========== التصميم الأسود الزجاجي ==========
+        mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(40, 100, 40, 40);
-        
-        // خلفية سوداء مع تأثير زجاجي
-        GradientDrawable background = new GradientDrawable();
-        background.setColor(Color.parseColor("#CC000000")); // أسود شفاف
-        background.setCornerRadius(0);
-        mainLayout.setBackground(background);
-        mainLayout.setBackgroundColor(Color.parseColor("#0A0A0F")); // أسود عميق
+        mainLayout.setBackgroundColor(Color.parseColor("#050510")); // أسود مع لمسة نيلي عميق
         
         // عنوان التطبيق
         TextView title = new TextView(this);
         title.setText("🔮 FOCUS LOCK");
         title.setTextSize(34);
         title.setTypeface(null, Typeface.BOLD);
-        title.setTextColor(Color.parseColor("#E0E0E0")); // أبيض ناعم
+        title.setTextColor(Color.parseColor("#FFFFFF"));
         title.setGravity(1);
-        title.setPadding(0, 0, 0, 60);
-        // إضافة تأثير الظل
-        title.setShadowLayer(8, 0, 0, Color.parseColor("#66000000"));
+        title.setPadding(0, 0, 0, 50);
+        title.setShadowLayer(10, 0, 0, Color.parseColor("#4444FF"));
         mainLayout.addView(title);
         
-        // ========== حقل البريد الإلكتروني (زجاجي) ==========
+        // ========== حقل البريد الإلكتروني ==========
         etEmail = new EditText(this);
         etEmail.setHint("البريد الإلكتروني");
-        etEmail.setTextColor(Color.parseColor("#F0F0F0"));
-        etEmail.setHintTextColor(Color.parseColor("#80FFFFFF"));
-        
-        // خلفية زجاجية للحقل
+        etEmail.setTextColor(Color.WHITE);
+        etEmail.setHintTextColor(Color.parseColor("#AAFFFFFF"));
         GradientDrawable emailBg = new GradientDrawable();
-        emailBg.setColor(Color.parseColor("#30FFFFFF")); // أبيض شفاف
-        emailBg.setCornerRadius(25);
-        emailBg.setStroke(1, Color.parseColor("#60FFFFFF"));
+        emailBg.setColor(Color.parseColor("#30FFFFFF"));
+        emailBg.setCornerRadius(30);
+        emailBg.setStroke(1, Color.parseColor("#80FFFFFF"));
         etEmail.setBackground(emailBg);
-        
-        etEmail.setPadding(30, 20, 30, 20);
+        etEmail.setPadding(35, 22, 35, 22);
         mainLayout.addView(etEmail);
         
-        // ========== حقل كلمة المرور (زجاجي) ==========
+        // ========== حقل كلمة المرور ==========
         etPassword = new EditText(this);
         etPassword.setHint("كلمة المرور");
         etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        etPassword.setTextColor(Color.parseColor("#F0F0F0"));
-        etPassword.setHintTextColor(Color.parseColor("#80FFFFFF"));
-        
-        // خلفية زجاجية للحقل
+        etPassword.setTextColor(Color.WHITE);
+        etPassword.setHintTextColor(Color.parseColor("#AAFFFFFF"));
         GradientDrawable passwordBg = new GradientDrawable();
         passwordBg.setColor(Color.parseColor("#30FFFFFF"));
-        passwordBg.setCornerRadius(25);
-        passwordBg.setStroke(1, Color.parseColor("#60FFFFFF"));
+        passwordBg.setCornerRadius(30);
+        passwordBg.setStroke(1, Color.parseColor("#80FFFFFF"));
         etPassword.setBackground(passwordBg);
-        
-        etPassword.setPadding(30, 20, 30, 20);
+        etPassword.setPadding(35, 22, 35, 22);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -88,20 +103,16 @@ public class MainActivity extends Activity {
         etPassword.setLayoutParams(params);
         mainLayout.addView(etPassword);
         
-        // ========== زر تسجيل الدخول (زجاجي) ==========
+        // ========== زر تسجيل الدخول ==========
         btnLogin = new Button(this);
         btnLogin.setText("تسجيل الدخول");
-        btnLogin.setTextColor(Color.parseColor("#FFFFFF"));
+        btnLogin.setTextColor(Color.WHITE);
         btnLogin.setTextSize(16);
         btnLogin.setTypeface(null, Typeface.BOLD);
-        
-        // خلفية زجاجية للزر
         GradientDrawable loginBg = new GradientDrawable();
-        loginBg.setColor(Color.parseColor("#40FFFFFF")); // أبيض شفاف
-        loginBg.setCornerRadius(30);
-        loginBg.setStroke(1, Color.parseColor("#A0FFFFFF"));
+        loginBg.setColor(Color.parseColor("#3D5AFE")); // أزرق نيلي
+        loginBg.setCornerRadius(35);
         btnLogin.setBackground(loginBg);
-        
         btnLogin.setPadding(30, 18, 30, 18);
         params = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -111,18 +122,16 @@ public class MainActivity extends Activity {
         btnLogin.setLayoutParams(params);
         mainLayout.addView(btnLogin);
         
-        // ========== زر إنشاء حساب (شفاف) ==========
+        // ========== زر إنشاء حساب ==========
         btnRegister = new Button(this);
         btnRegister.setText("إنشاء حساب جديد");
-        btnRegister.setTextColor(Color.parseColor("#B0FFFFFF"));
+        btnRegister.setTextColor(Color.parseColor("#CCFFFFFF"));
         btnRegister.setTextSize(14);
-        
         GradientDrawable registerBg = new GradientDrawable();
         registerBg.setColor(Color.TRANSPARENT);
-        registerBg.setCornerRadius(30);
-        registerBg.setStroke(1, Color.parseColor("#60FFFFFF"));
+        registerBg.setCornerRadius(35);
+        registerBg.setStroke(1, Color.parseColor("#80FFFFFF"));
         btnRegister.setBackground(registerBg);
-        
         btnRegister.setPadding(30, 18, 30, 18);
         params = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -132,47 +141,119 @@ public class MainActivity extends Activity {
         btnRegister.setLayoutParams(params);
         mainLayout.addView(btnRegister);
         
-        // ========== TextView للحالة (نيلي) ==========
+        // ========== حالة التطبيق ==========
         tvStatus = new TextView(this);
         tvStatus.setText("");
-        tvStatus.setTextColor(Color.parseColor("#4D9FFF")); // أزرق نيلي فاتح
+        tvStatus.setTextColor(Color.parseColor("#3D5AFE"));
         tvStatus.setGravity(1);
         tvStatus.setPadding(0, 25, 0, 0);
         tvStatus.setTextSize(14);
         mainLayout.addView(tvStatus);
         
+        // ========== Footer (Developed by 1383) ==========
+        tvFooter = new TextView(this);
+        tvFooter.setText("Developed by 1383");
+        tvFooter.setTextColor(Color.parseColor("#80FFFFFF"));
+        tvFooter.setTextSize(12);
+        tvFooter.setGravity(1);
+        tvFooter.setPadding(0, 40, 0, 0);
+        tvFooter.setOnClickListener(v -> {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://1383portfolio.vercel.app"));
+            startActivity(browserIntent);
+        });
+        mainLayout.addView(tvFooter);
+        
         setContentView(mainLayout);
         
-        // ========== إعداد الأزرار ==========
+        // ========== إعداد الأزرار مع Firebase ==========
+        
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             
-            if (email.isEmpty() || password.isEmpty()) {
-                tvStatus.setText("✧ البريد الإلكتروني وكلمة المرور مطلوبان ✧");
+            if (TextUtils.isEmpty(email)) {
+                tvStatus.setText("✧ البريد الإلكتروني مطلوب ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
-            } else {
-                tvStatus.setText("✧ جاري تسجيل الدخول... ✧");
-                tvStatus.setTextColor(Color.parseColor("#4D9FFF"));
-                Toast.makeText(this, "✨ مرحباً " + email, Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (TextUtils.isEmpty(password)) {
+                tvStatus.setText("✧ كلمة المرور مطلوبة ✧");
+                tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
+                return;
+            }
+            
+            tvStatus.setText("✧ جاري تسجيل الدخول... ✧");
+            tvStatus.setTextColor(Color.parseColor("#3D5AFE"));
+            
+            mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        tvStatus.setText("✅ تم تسجيل الدخول بنجاح!");
+                        tvStatus.setTextColor(Color.parseColor("#4CAF50"));
+                        Toast.makeText(MainActivity.this, "✨ مرحباً " + user.getEmail() + " ✨", Toast.LENGTH_LONG).show();
+                        // هنا هنروح للصفحة الرئيسية
+                    } else {
+                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ غير معروف";
+                        tvStatus.setText("❌ فشل تسجيل الدخول: " + error);
+                        tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
+                    }
+                });
         });
         
         btnRegister.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             
-            if (email.isEmpty() || password.isEmpty()) {
-                tvStatus.setText("✧ البريد الإلكتروني وكلمة المرور مطلوبان ✧");
+            if (TextUtils.isEmpty(email)) {
+                tvStatus.setText("✧ البريد الإلكتروني مطلوب ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
-            } else if (password.length() < 6) {
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                tvStatus.setText("✧ كلمة المرور مطلوبة ✧");
+                tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
+                return;
+            }
+            if (password.length() < 6) {
                 tvStatus.setText("✧ كلمة المرور يجب أن تكون 6 خانات على الأقل ✧");
                 tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
-            } else {
-                tvStatus.setText("✧ جاري إنشاء الحساب... ✧");
-                tvStatus.setTextColor(Color.parseColor("#4D9FFF"));
-                Toast.makeText(this, "🎉 تم إنشاء الحساب بنجاح!", Toast.LENGTH_SHORT).show();
+                return;
             }
+            
+            tvStatus.setText("✧ جاري إنشاء الحساب... ✧");
+            tvStatus.setTextColor(Color.parseColor("#3D5AFE"));
+            
+            mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        // حفظ بيانات المستخدم في Realtime Database
+                        if (user != null) {
+                            String userId = user.getUid();
+                            User newUser = new User(email, System.currentTimeMillis());
+                            mDatabase.child(userId).setValue(newUser);
+                        }
+                        tvStatus.setText("✅ تم إنشاء الحساب بنجاح!");
+                        tvStatus.setTextColor(Color.parseColor("#4CAF50"));
+                        Toast.makeText(MainActivity.this, "🎉 مرحباً بك! تم إنشاء حسابك.", Toast.LENGTH_LONG).show();
+                    } else {
+                        String error = task.getException() != null ? task.getException().getMessage() : "خطأ غير معروف";
+                        tvStatus.setText("❌ فشل إنشاء الحساب: " + error);
+                        tvStatus.setTextColor(Color.parseColor("#FF6B6B"));
+                    }
+                });
         });
     }
-            }
+    
+    // كلاس المستخدم
+    public static class User {
+        public String email;
+        public long createdAt;
+        public User() {}
+        public User(String email, long createdAt) {
+            this.email = email;
+            this.createdAt = createdAt;
+        }
+    }
+}
